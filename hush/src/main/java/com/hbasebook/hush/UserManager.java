@@ -15,6 +15,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.HTable;
+import org.apache.hadoop.hbase.client.HTableInterface;
 import org.apache.hadoop.hbase.client.Increment;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Result;
@@ -61,7 +62,7 @@ public class UserManager {
    * @throws IOException When creating the user fails.
    */
   private void createRootUser() throws IOException {
-    HTable table = rm.getTable(UserTable.NAME);
+    HTableInterface table = rm.getTable(UserTable.NAME);
     try {
       Put put = new Put(ADMIN_LOGIN);
       put.add(UserTable.DATA_FAMILY, UserTable.CREDENTIALS, ADMIN_PASSWORD);
@@ -75,7 +76,8 @@ public class UserManager {
       LOG.error("Unable to initialize admin user.", e);
       throw new IOException(e);
     } finally {
-      rm.putTable(table);
+      //rm.putTable(table);
+      table.close();
     }
   }
 
@@ -85,7 +87,7 @@ public class UserManager {
    * @throws IOException When initializing the counter fails.
    */
   private void initializeAnonUserCounter() throws IOException {
-    HTable table = rm.getTable(HushTable.NAME);
+    HTableInterface table = rm.getTable(HushTable.NAME);
     try {
       Put put = new Put(HushTable.GLOBAL_ROW_KEY);
       put.add(HushTable.COUNTERS_FAMILY, HushTable.ANONYMOUS_USER_ID,
@@ -100,7 +102,8 @@ public class UserManager {
       LOG.error("Unable to initialize counters.", e);
       throw new IOException(e);
     } finally {
-      rm.putTable(table);
+      //rm.putTable(table);
+      table.close();
     }
   }
 
@@ -194,7 +197,7 @@ public class UserManager {
   // vv HushHTablePoolUsage
   public void createUser(String username, String firstName, String lastName,
     String email, String password, String roles) throws IOException {
-    /*[*/HTable table = rm.getTable(UserTable.NAME);/*]*/
+    /*[*/HTableInterface table = rm.getTable(UserTable.NAME);/*]*/
     Put put = new Put(Bytes.toBytes(username));
     put.add(UserTable.DATA_FAMILY, UserTable.FIRSTNAME,
       Bytes.toBytes(firstName));
@@ -205,7 +208,8 @@ public class UserManager {
     put.add(UserTable.DATA_FAMILY, UserTable.ROLES, Bytes.toBytes(roles));
     table.put(put);
     table.flushCommits();
-    /*[*/rm.putTable(table);/*]*/
+    ///*[*/rm.putTable(table);/*]*/
+    table.close();
   }
   // ^^ HushHTablePoolUsage
 
@@ -220,7 +224,7 @@ public class UserManager {
    */
   public void updateUser(String username, String firstName, String lastName,
     String email) throws IOException {
-    HTable table = rm.getTable(UserTable.NAME);
+    HTableInterface table = rm.getTable(UserTable.NAME);
     Put put = new Put(Bytes.toBytes(username));
     put.add(UserTable.DATA_FAMILY, UserTable.FIRSTNAME,
       Bytes.toBytes(firstName));
@@ -228,12 +232,13 @@ public class UserManager {
     put.add(UserTable.DATA_FAMILY, UserTable.EMAIL, Bytes.toBytes(email));
     table.put(put);
     table.flushCommits();
-    rm.putTable(table);
+    //rm.putTable(table);
+    table.close();
   }
 
   public boolean changePassword(String username, String oldPassword,
     String newPassword) throws IOException {
-    HTable table = rm.getTable(UserTable.NAME);
+    HTableInterface table = rm.getTable(UserTable.NAME);
     Put put = new Put(Bytes.toBytes(username));
     put.add(UserTable.DATA_FAMILY, UserTable.CREDENTIALS,
       Bytes.toBytes(newPassword));
@@ -241,24 +246,26 @@ public class UserManager {
       UserTable.DATA_FAMILY, UserTable.CREDENTIALS, Bytes.toBytes(oldPassword),
       put);
     table.flushCommits();
-    rm.putTable(table);
+    //rm.putTable(table);
+    table.close();
     return check;
   }
 
   public void adminChangePassword(String username, String newPassword)
     throws IOException {
-    HTable table = rm.getTable(UserTable.NAME);
+    HTableInterface table = rm.getTable(UserTable.NAME);
     Put put = new Put(Bytes.toBytes(username));
     put.add(UserTable.DATA_FAMILY, UserTable.CREDENTIALS,
       Bytes.toBytes(newPassword));
     table.put(put);
     table.flushCommits();
-    rm.putTable(table);
+    //rm.putTable(table);
+    table.close();
   }
 
   public User getUser(String username) throws IOException {
     User user = null;
-    HTable table = null;
+    HTableInterface table = null;
     try {
       table = rm.getTable(UserTable.NAME);
       Get get = new Get(Bytes.toBytes(username));
@@ -282,7 +289,8 @@ public class UserManager {
     } catch (Exception e) {
       LOG.error(String.format("Unable to get user '%s'", username), e);
     } finally {
-      rm.putTable(table);
+      //rm.putTable(table);
+      table.close();
     }
 
     return user;
@@ -290,7 +298,7 @@ public class UserManager {
 
   public List<User> getUsers() throws IOException {
     List<User> users = new ArrayList<User>();
-    HTable table = rm.getTable(UserTable.NAME);
+    HTableInterface table = rm.getTable(UserTable.NAME);
 
     Scan scan = new Scan();
     ResultScanner scanner = table.getScanner(scan);
@@ -323,7 +331,8 @@ public class UserManager {
     if (errors > 0) {
       LOG.error(String.format("Encountered %d errors in getUsers", errors));
     }
-    rm.putTable(table);
+    //rm.putTable(table);
+    table.close();
     return users;
   }
 
@@ -347,7 +356,7 @@ public class UserManager {
    */
   private String generateAnonymousUserId(long incrBy) throws IOException {
     ResourceManager manager = ResourceManager.getInstance();
-    HTable table = manager.getTable(HushTable.NAME);
+    HTableInterface table = manager.getTable(HushTable.NAME);
     try {
       Increment increment = new Increment(HushTable.GLOBAL_ROW_KEY);
       increment.addColumn(HushTable.COUNTERS_FAMILY,
@@ -361,7 +370,8 @@ public class UserManager {
       throw new IOException(e);
     } finally {
       try {
-        manager.putTable(table);
+        //manager.putTable(table);
+        table.close();
       } catch (Exception e) {
         // ignore
       }

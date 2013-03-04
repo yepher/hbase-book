@@ -1,9 +1,10 @@
 package com.hbasebook.hush.coprocessor;
 
+import java.io.IOException;
+
 import org.apache.hadoop.hbase.coprocessor.BaseRegionObserver;
 import org.apache.hadoop.hbase.coprocessor.RegionObserver;
-
-import java.io.IOException;
+import org.apache.hadoop.hbase.ipc.ProtocolSignature;
 
 /**
  * An observer implementation that checks for new URL records and
@@ -28,5 +29,12 @@ public class FetchUrlInfoObserver extends BaseRegionObserver
   @Override
   public long getProtocolVersion(String s, long l) throws IOException {
     return 1L;
+  }
+
+  @Override
+  public ProtocolSignature getProtocolSignature(String protocol,
+    long clientVersion, int clientMethodsHash) throws IOException {
+    // TODO Auto-generated method stub
+    return null;
   }
 }

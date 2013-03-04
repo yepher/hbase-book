@@ -15,6 +15,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.HTable;
+import org.apache.hadoop.hbase.client.HTableInterface;
 import org.apache.hadoop.hbase.client.Increment;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.util.Bytes;
@@ -78,7 +79,7 @@ public class Counters {
       country = rm.getCountry(info.get(RequestInfo.InfoName.RemoteAddr));
     }
     // increment user statistics
-    HTable table = rm.getTable(ShortUrlTable.NAME);
+    HTableInterface table = rm.getTable(ShortUrlTable.NAME);
     byte[] rowKey = Bytes.toBytes(shortId);
     Increment increment = new Increment(rowKey);
     increment.addColumn(ShortUrlTable.DATA_FAMILY, ShortUrlTable.CLICKS,
@@ -89,7 +90,8 @@ public class Counters {
         country.getCode(), incrBy);
     }
     table.increment(increment);
-    rm.putTable(table);
+    table.close();
+    //rm.putTable(table);
   }
 
   /**
@@ -176,7 +178,7 @@ public class Counters {
   public ShortUrlStatistics getDailyStatistics(ShortUrl shortUrl, int maxValues,
     double normalize) throws IOException {
     ResourceManager manager = ResourceManager.getInstance();
-    HTable table = manager.getTable(ShortUrlTable.NAME);
+    HTableInterface table = manager.getTable(ShortUrlTable.NAME);
 
     // get short Id usage data
     byte[] rowKey = Bytes.toBytes(shortUrl.getId());
@@ -236,7 +238,8 @@ public class Counters {
       normalizeData(clicks, normalize, maxValue);
     }
 
-    manager.putTable(table);
+    //manager.putTable(table);
+    table.close();
 
     ShortUrlStatistics statistics = new ShortUrlStatistics(shortUrl,
       TimeFrame.DAY);

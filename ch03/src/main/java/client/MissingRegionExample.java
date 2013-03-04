@@ -1,15 +1,18 @@
 package client;
 
 // cc MissingRegionExample Example of how missing regions are handled
+import java.io.IOException;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.HRegionLocation;
-import org.apache.hadoop.hbase.client.*;
+import org.apache.hadoop.hbase.client.Get;
+import org.apache.hadoop.hbase.client.HBaseAdmin;
+import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.hadoop.hbase.util.Pair;
-import util.HBaseHelper;
 
-import java.io.IOException;
+import util.HBaseHelper;
 
 public class MissingRegionExample {
 
@@ -17,7 +20,7 @@ public class MissingRegionExample {
 
   private static void printTableRegions(String tableName) throws IOException {
     System.out.println("Printing regions of table: " + tableName);
-    HTable table = new HTable(Bytes.toBytes(tableName));
+    HTable table = new HTable(conf, Bytes.toBytes(tableName));
     Pair<byte[][], byte[][]> pair = table.getStartEndKeys();
     for (int n = 0; n < pair.getFirst().length; n++) {
       byte[] sk = pair.getFirst()[n];
@@ -109,7 +112,7 @@ public class MissingRegionExample {
 
     System.out.println("\nAssigning region: " + location.getRegionInfo().
       getRegionNameAsString());
-    admin.assign(location.getRegionInfo().getRegionName(), false); // co MissingRegionExample-9-Open Open the region, which will make the blocked get() in the thread wake up and print its waiting time.
+    admin.assign(location.getRegionInfo().getRegionName()); // co MissingRegionExample-9-Open Open the region, which will make the blocked get() in the thread wake up and print its waiting time.
 
     try {
       System.out.println("\nSleeping another 3secs in main()...");

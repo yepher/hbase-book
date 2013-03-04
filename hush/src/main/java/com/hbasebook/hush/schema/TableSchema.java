@@ -1,5 +1,6 @@
 package com.hbasebook.hush.schema;
 
+import org.apache.hadoop.hbase.HConstants;
 import org.apache.hadoop.hbase.HTableDescriptor;
 
 import java.util.Collection;
@@ -10,8 +11,8 @@ import java.util.Map;
 public class TableSchema {
   private String name = null;
   private String description = null;
-  private boolean deferredLogFlush = HTableDescriptor.DEFAULT_DEFERRED_LOG_FLUSH;
-  private long maxFileSize = HTableDescriptor.DEFAULT_MAX_FILESIZE;
+  private boolean deferredLogFlush = false; //HTableDescriptor.is;
+  private long maxFileSize = HConstants.DEFAULT_MAX_FILE_SIZE;
   private long memStoreFlushSize = HTableDescriptor.DEFAULT_MEMSTORE_FLUSH_SIZE;
   private boolean readOnly = false;
   private final HashMap<String, ColumnDefinition> columns = new HashMap<String, ColumnDefinition>();

@@ -9,6 +9,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.client.HTable;
+import org.apache.hadoop.hbase.client.HTableInterface;
 import org.apache.hadoop.hbase.client.HTablePool;
 
 import com.maxmind.geoip.Country;
@@ -136,14 +137,14 @@ public class ResourceManager {
    * @throws IOException When talking to HBase fails.
    */
   // vv HushHTablePoolProvider
-  public HTable getTable(byte[] tableName) throws IOException {
-    return (HTable) pool.getTable(tableName);
+  public HTableInterface getTable(byte[] tableName) throws IOException {
+    return (HTableInterface) pool.getTable(tableName);
   }
 
   // ^^ HushHTablePoolProvider
 
   /**
-   * Returns the previously retrieved table to the shared pool. The caller must
+   * Returns the previously restrieved table to the shared pool. The caller must
    * take care of calling <code>flushTable()</code> if there are any pending
    * mutations.
    *

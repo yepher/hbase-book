@@ -2,3 +2,10 @@
 *.iml
 target/
 .idea/
+
+# Eclipse Ignores
+.project
+.settings
+.classpath
+
+

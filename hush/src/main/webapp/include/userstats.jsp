@@ -37,6 +37,9 @@
       int rowNum = 0;
         for (ShortUrlStatistics stat : stats) {
           rowNum++;
+          if (stat == null) {
+	          continue;
+          }
           ShortUrl shortUrl = stat.getShortUrl() ;
           String url = shortUrl.toString();
           String detailsUrl = url + "+";

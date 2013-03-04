@@ -10,6 +10,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.hbase.client.Delete;
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.HTable;
+import org.apache.hadoop.hbase.client.HTableInterface;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
@@ -58,7 +59,7 @@ public class DomainManager {
    * @throws IOException
    */
   public List<ShortDomain> listShortDomains() throws IOException {
-    HTable table = null;
+    HTableInterface table = null;
 
     List<ShortDomain> domains = new ArrayList<ShortDomain>();
 
@@ -81,7 +82,8 @@ public class DomainManager {
         domains.add(new ShortDomain(shortDomain, domainsList));
       }
     } finally {
-      rm.putTable(table);
+      //rm.putTable(table);
+      table.close();
     }
     return domains;
   }
@@ -95,8 +97,8 @@ public class DomainManager {
    */
   public void addLongDomain(String shortDomain, String longDomain)
       throws IOException {
-    HTable shortTable = rm.getTable(ShortDomainTable.NAME);
-    HTable longTable = rm.getTable(LongDomainTable.NAME);
+    HTableInterface shortTable = rm.getTable(ShortDomainTable.NAME);
+    HTableInterface longTable = rm.getTable(LongDomainTable.NAME);
 
     try {
       byte[] shortBytes = Bytes.toBytes(shortDomain);
@@ -117,8 +119,10 @@ public class DomainManager {
       longTable.flushCommits();
       shortTable.flushCommits();
     } finally {
-      rm.putTable(shortTable);
-      rm.putTable(longTable);
+      //rm.putTable(shortTable);
+      //rm.putTable(longTable);
+      shortTable.close();
+      longTable.close();
     }
   }
 
@@ -129,8 +133,8 @@ public class DomainManager {
    * @throws IOException
    */
   public void deleteLongDomain(String longDomain) throws IOException {
-    HTable shortTable = rm.getTable(ShortDomainTable.NAME);
-    HTable longTable = rm.getTable(LongDomainTable.NAME);
+    HTableInterface shortTable = rm.getTable(ShortDomainTable.NAME);
+    HTableInterface longTable = rm.getTable(LongDomainTable.NAME);
 
     try {
       byte[] longBytes = Bytes.toBytes(longDomain);
@@ -149,8 +153,10 @@ public class DomainManager {
         shortTable.flushCommits();
       }
     } finally {
-      rm.putTable(shortTable);
-      rm.putTable(longTable);
+      //rm.putTable(shortTable);
+      //rm.putTable(longTable);
+      shortTable.close();
+      longTable.close();
     }
   }
 
@@ -161,8 +167,8 @@ public class DomainManager {
    * @throws IOException
    */
   public void deleteShortDomain(String shortDomain) throws IOException {
-    HTable shortTable = rm.getTable(ShortDomainTable.NAME);
-    HTable longTable = rm.getTable(LongDomainTable.NAME);
+    HTableInterface shortTable = rm.getTable(ShortDomainTable.NAME);
+    HTableInterface longTable = rm.getTable(LongDomainTable.NAME);
 
     try {
       byte[] shortBytes = Bytes.toBytes(shortDomain);
@@ -182,8 +188,10 @@ public class DomainManager {
         shortTable.flushCommits();
       }
     } finally {
-      rm.putTable(shortTable);
-      rm.putTable(longTable);
+      //rm.putTable(shortTable);
+      //rm.putTable(longTable);
+      shortTable.close();
+      longTable.close();
     }
   }
 
@@ -204,7 +212,7 @@ public class DomainManager {
    * @throws IOException
    */
   public String shorten(String longDomain) throws IOException {
-    HTable longTable = rm.getTable(LongDomainTable.NAME);
+    HTableInterface longTable = rm.getTable(LongDomainTable.NAME);
 
     try {
       Result result = longTable.get(new Get(Bytes.toBytes(longDomain)));
@@ -217,7 +225,8 @@ public class DomainManager {
       }
       return getDefaultDomain();
     } finally {
-      rm.putTable(longTable);
+      //rm.putTable(longTable);
+      longTable.close();
     }
   }
 }

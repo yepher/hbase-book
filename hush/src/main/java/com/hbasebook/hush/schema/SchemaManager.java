@@ -161,7 +161,7 @@ public class SchemaManager {
         if (modCols.size() > 0 || addCols.size() > 0 || delCols.size() > 0) {
           for (final HColumnDescriptor col : modCols) {
             LOG.info("Found different column -> " + col);
-            hbaseAdmin.modifyColumn(schema.getName(), col.getNameAsString(), // co HushSchemaManager-3-AlterCol Alter the columns that have changed. The table was properly disabled first.
+            hbaseAdmin.modifyColumn(schema.getName(), /* col.getNameAsString(),*/ // co HushSchemaManager-3-AlterCol Alter the columns that have changed. The table was properly disabled first.
               col);
           }
           for (final HColumnDescriptor col : addCols) {

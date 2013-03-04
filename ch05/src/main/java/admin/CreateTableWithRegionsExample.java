@@ -16,9 +16,9 @@ import java.io.IOException;
 public class CreateTableWithRegionsExample {
 
   // vv CreateTableWithRegionsExample
-  private static void printTableRegions(String tableName) throws IOException { // co CreateTableWithRegionsExample-1-PrintTable Helper method to print the regions of a table.
+  private static void printTableRegions(Configuration conf, String tableName) throws IOException { // co CreateTableWithRegionsExample-1-PrintTable Helper method to print the regions of a table.
     System.out.println("Printing regions of table: " + tableName);
-    HTable table = new HTable(Bytes.toBytes(tableName));
+    HTable table = new HTable(conf, Bytes.toBytes(tableName));
     Pair<byte[][], byte[][]> pair = table.getStartEndKeys(); // co CreateTableWithRegionsExample-2-GetKeys Retrieve the start and end keys from the newly created table.
     for (int n = 0; n < pair.getFirst().length; n++) {
       byte[] sk = pair.getFirst()[n];
@@ -51,7 +51,7 @@ public class CreateTableWithRegionsExample {
     desc.addFamily(coldef);
 
     admin.createTable(desc/*[*/, Bytes.toBytes(1L), Bytes.toBytes(100L), 10/*]*/); // co CreateTableWithRegionsExample-4-CreateTable1 Call the createTable() method while also specifying the region boundaries.
-    printTableRegions("testtable1");
+    printTableRegions(conf, "testtable1");
 
     byte[][] regions = new byte[][] { // co CreateTableWithRegionsExample-5-Regions Manually create region split keys.
       Bytes.toBytes("A"),
@@ -63,7 +63,7 @@ public class CreateTableWithRegionsExample {
     };
     desc.setName(Bytes.toBytes("testtable2"));
     admin.createTable(desc, regions); // co CreateTableWithRegionsExample-6-CreateTable2 Call the crateTable() method again, with a new table name and the list of region split keys.
-    printTableRegions("testtable2");
+    printTableRegions(conf, "testtable2");
   }
   // ^^ CreateTableWithRegionsExample
 }

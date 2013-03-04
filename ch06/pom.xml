@@ -78,10 +78,12 @@
           <artifactId>commons-el</artifactId>
           <groupId>commons-el</groupId>
         </exclusion>
+<!-- 
         <exclusion>
           <artifactId>commons-codec</artifactId>
           <groupId>commons-codec</groupId>
         </exclusion>
+ -->
         <exclusion>
           <artifactId>avro</artifactId>
           <groupId>org.apache.hadoop</groupId>

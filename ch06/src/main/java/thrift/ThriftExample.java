@@ -18,10 +18,8 @@ public class ThriftExample {
   private static final byte[] ROW = Bytes.toBytes("testRow");
   private static final byte[] FAMILY1 = Bytes.toBytes("testFamily1");
   private static final byte[] FAMILY2 = Bytes.toBytes("testFamily2");
-  private static final byte[] QUALIFIER = Bytes.toBytes
-    ("testQualifier");
-  private static final byte[] COLUMN = Bytes.toBytes(
-    "testQualifier:testColumn");
+  //private static final byte[] QUALIFIER = Bytes.toBytes("testQualifier");
+  private static final byte[] COLUMN = Bytes.toBytes("testQualifier:testColumn");
   private static final byte[] VALUE = Bytes.toBytes("testValue");
 
   public static void main(String[] args) throws IOException {
@@ -43,17 +41,23 @@ public class ThriftExample {
       client.createTable(ByteBuffer.wrap(TABLE), columns);
 
       ArrayList<Mutation> mutations = new ArrayList<Mutation>();
-      mutations.add(new Mutation(false, ByteBuffer.wrap(COLUMN),
-        ByteBuffer.wrap(VALUE)));
-      client.mutateRow(ByteBuffer.wrap(TABLE), ByteBuffer.wrap(ROW),
-        mutations);
+      
+      Mutation mutation = new Mutation(); //Old version passed: (false, ByteBuffer.wrap(COLUMN), ByteBuffer.wrap(VALUE));
+      mutation.setIsDelete(false);
+      mutation.setColumn(ByteBuffer.wrap(COLUMN));
+      mutation.setValue(ByteBuffer.wrap(VALUE));
+      
+      mutations.add(mutation);
+      
+      client.mutateRow(ByteBuffer.wrap(TABLE), ByteBuffer.wrap(ROW), mutations, null); // TODO: (CRW) not sure what attributes to send here...
 
       ArrayList<byte[]> columnNames = new ArrayList<byte[]>();
       columnNames.add(FAMILY2);
-      int scannerId = client.scannerOpen(ByteBuffer.wrap(TABLE), null,
-        null);
-      while (client.scannerGet(scannerId) != null)
-        ;
+      int scannerId = client.scannerOpen(ByteBuffer.wrap(TABLE), null, null, null); // TODO: (CRW)  not sure what attributes to send here...
+      while (client.scannerGet(scannerId) != null) {
+        // EMPTY LOOP
+      }
+      
       client.scannerClose(scannerId);
       System.out.println("Done.");
     } catch (Exception e) {
